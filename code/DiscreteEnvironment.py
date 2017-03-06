@@ -77,11 +77,11 @@ class DiscreteEnvironment(object):
         # This function maps a grid coordinate to the associated
         # node id 
         node_id = 0
-        shift_accum = 0
+        shift_accum = 1
         for idx in range(self.dimension):
-            shifted = coord[idx] << shift_accum
+            shifted = coord[idx] * shift_accum
             node_id += shifted
-            shift_accum += numpy.ceil(numpy.log2(self.num_cells[idx]))
+            shift_accum *= numpy.ceil(numpy.log10(self.num_cells[idx]))
         return node_id
 
     def NodeIdToGridCoord(self, node_id):
@@ -91,11 +91,11 @@ class DiscreteEnvironment(object):
         # grid coordinate
         coord = [0] * self.dimension
 
-        shift_accum = 0
+        shift_accum = 1
         for idx in range(self.dimension):
-            shifted = node_id >> shift_accum
-            coord[idx] = shifted & (pow(2,numpy.ceil(numpy.log2(self.num_cells[idx])))-1
-            shift_accum += numpy.ceil(numpy.log2(self.num_cells[idx]))
+            shifted = numpy.floor(node_id / shift_accum)
+            coord[idx] = shifted % (numpy.power(10,numpy.ceil(numpy.log10(self.num_cells[idx]))))
+            shift_accum *= numpy.ceil(numpy.log10(self.num_cells[idx]))
         
         return coord
         
