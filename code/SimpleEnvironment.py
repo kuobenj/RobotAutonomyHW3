@@ -44,7 +44,8 @@ class SimpleEnvironment(object):
         for idx in range(len(potential_successors)):
             config = self.discrete_env.GridCoordToConfiguration(potential_successors[idx])
             if (config[0] > self.lower_limits[0]) and (config[0] < self.upper_limits[0]) and (config[1] > self.lower_limits[1]) and (config[1] < self.upper_limits[1]):
-                successors.append(self.discrete_env.ConfigurationToNodeId(config))
+                if not self.HasCollisions(config):
+                    successors.append(self.discrete_env.ConfigurationToNodeId(config))
 
         return successors
 
@@ -128,3 +129,10 @@ class SimpleEnvironment(object):
             # Set robot back to original transform
             self.robot.SetTransform(orig_transform)
         return reduce(lambda x1, x2: x1 or x2, collisions)
+
+    # Aooly loc to current transform and return new transform
+    def ApplyMotion(self, loc):
+        new_transform =  self.robot.GetTransform()
+        for i in range(len(loc)):
+            new_transform[i][3] = loc[i]
+        return new_transform
