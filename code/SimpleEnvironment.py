@@ -29,6 +29,24 @@ class SimpleEnvironment(object):
         #  and return a list of node_ids that represent the neighboring
         #  nodes
         
+        coord = self.discrete_env.NodeIdToGridCoord(node_id)
+
+        #since we're doing 4 connectivity
+        n_coord = [coord[0], coord[1]+1]
+        s_coord = [coord[0], coord[1]-1]
+        e_coord = [coord[0]+1, coord[1]]
+        w_coord = [coord[0]-1, coord[1]]
+        potential_successors = []
+        potential_successors.append(n_coord)
+        potential_successors.append(s_coord)
+        potential_successors.append(e_coord)
+        potential_successors.append(w_coord)
+        for idx in range(len(potential_successors)):
+            config = self.discrete_env.GridCoordToConfiguration(potential_successors[idx])
+            if (config[0] > self.lower_limits[0]) and (config[0] < self.upper_limits[0]) and (config[1] > self.lower_limits[1]) and (config[1] < self.upper_limits[1]):
+                if not self.HasCollisions(config):
+                    successors.append(self.discrete_env.ConfigurationToNodeId(config))
+
         return successors
 
     def ComputeDistance(self, start_id, end_id):
@@ -39,6 +57,11 @@ class SimpleEnvironment(object):
         # computes the distance between the configurations given
         # by the two node ids
 
+        start_coord = self.discrete_env.NodeIdToGridCoord(start_id)
+        end_coord = self.discrete_env.NodeIdToGridCoord(end_id)
+
+        dist = numpy.abs(start_coord[0]-end_coord[0])+numpy.abs(start_coord[1]-end_coord[1])
+
         return dist
 
     def ComputeHeuristicCost(self, start_id, goal_id):
@@ -48,6 +71,12 @@ class SimpleEnvironment(object):
         # TODO: Here you will implement a function that 
         # computes the heuristic cost between the configurations
         # given by the two node ids
+
+        cost_factor = 1.0
+
+        distance = self.ComputeDistance(start_id,goal_id)
+
+        cost = distance*cost_factor
 
         return cost
 
@@ -84,3 +113,26 @@ class SimpleEnvironment(object):
         pl.draw()
 
         
+    # Check if new locn has collisions
+    def HasCollisions(self, locn):
+        collisions = []
+        with self.robot.GetEnv():
+            # Apply new_locn to current robot transform
+            orig_transform = self.robot.GetTransform()
+            new_transform = self.ApplyMotion(locn)
+            self.robot.SetTransform(new_transform)
+
+            # Check for collision
+            bodies = self.robot.GetEnv().GetBodies()[1:]
+            collisions = map(lambda body: self.robot.GetEnv().CheckCollision(self.robot, body), bodies)                
+
+            # Set robot back to original transform
+            self.robot.SetTransform(orig_transform)
+        return reduce(lambda x1, x2: x1 or x2, collisions)
+
+    # Aooly loc to current transform and return new transform
+    def ApplyMotion(self, loc):
+        new_transform =  self.robot.GetTransform()
+        for i in range(len(loc)):
+            new_transform[i][3] = loc[i]
+        return new_transform
