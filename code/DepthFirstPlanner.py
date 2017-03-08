@@ -84,6 +84,7 @@ class DepthFirstPlanner(object):
                     Q.append(n)
 
         # print parents
+        print 'NUM OF EXPANDED NODES: ' + repr(len(S))
 
         plan.append(goal_config)
         parent = parents[tuple(goal_config_discrete)]
