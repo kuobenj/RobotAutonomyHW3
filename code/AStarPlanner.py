@@ -1,5 +1,5 @@
-from heapdict import heapdict
 import numpy as np
+from Queue import PriorityQueue
 
 class AStarPlanner(object):
 
@@ -33,7 +33,7 @@ class AStarPlanner(object):
 
         # plan = np.empty((0, start_config.size()))
         goal_found = False
-        frontier = heapdict()
+        frontier = PriorityQueue()
         states_visited = [start_id]
         came_from = {}
         came_from[start_id] = None
@@ -50,12 +50,14 @@ class AStarPlanner(object):
             self.planning_env.PlotEdge(start_config, self.planning_env.discrete_env.NodeIdToConfiguration(next_node))
             plan_cost[next_node] = plan_cost[start_id] + 1
             priority = plan_cost[next_node] + self.planning_env.ComputeHeuristicCost(next_node, goal_id)
-            frontier[next_node] = (priority, next_node)
+            frontier.put((priority, next_node))
             came_from[next_node] = start_id
 
         while frontier:
-            (cur_node, (cur_cost, _)) = frontier.popitem()
+            # (cur_node, (cur_cost, _)) = frontier.popitem()
+            (cur_cost, cur_node) = frontier.get()
             states_visited.append(cur_node)
+            self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(came_from[cur_node]), self.planning_env.discrete_env.NodeIdToConfiguration(cur_node))
 
             if cur_node == goal_id:
                 goal_found = True
@@ -65,11 +67,11 @@ class AStarPlanner(object):
             successors = self.planning_env.GetSuccessors(cur_node)
             for next_node in successors:
                 new_cost = plan_cost[cur_node] + 1
-                self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(cur_node), self.planning_env.discrete_env.NodeIdToConfiguration(next_node))
+                # self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(cur_node), self.planning_env.discrete_env.NodeIdToConfiguration(next_node))
                 if next_node not in plan_cost  or  new_cost < plan_cost[next_node]:
                     plan_cost[next_node] = new_cost
                     priority = new_cost + self.planning_env.ComputeHeuristicCost(next_node, goal_id)
-                    frontier[next_node] = (priority, next_node)
+                    frontier.put((priority, next_node))
                     came_from[next_node] = cur_node
 
         while goal_found  and  came_from[cur_node] is not None:
