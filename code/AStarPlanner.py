@@ -77,4 +77,5 @@ class AStarPlanner(object):
             plan = np.append([self.planning_env.discrete_env.NodeIdToConfiguration(cur_node)], plan, axis=0)
             cur_node = parent
 
+        print 'NUM OF EXPANDED NODES: ' + repr(len(states_visited))
         return plan
