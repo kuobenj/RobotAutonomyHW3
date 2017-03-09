@@ -63,7 +63,8 @@ class BreadthFirstPlanner(object):
         while len(Q) > 0:
             current = Q.pop(0)
             if parents[tuple(current)] is not None:
-                self.planning_env.PlotEdge(list(parents[tuple(current)]), current)
+                if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
+                    self.planning_env.PlotEdge(list(parents[tuple(current)]), current)
 
             iteration_count += 1
             if iteration_count % 10 == 0:
@@ -83,6 +84,7 @@ class BreadthFirstPlanner(object):
                     Q.append(n)
 
         # print parents
+        print 'NUM OF EXPANDED NODES: ' + repr(len(S))
 
         plan.append(goal_config)
         parent = parents[tuple(goal_config_discrete)]

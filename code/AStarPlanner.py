@@ -18,8 +18,8 @@ class AStarPlanner(object):
         #  of dimension k x n where k is the number of waypoints
         #  and n is the dimension of the robots configuration space
 
-        plan.append(start_config)
-        # plan.append(goal_config)
+        # plan.append(start_config)
+        plan.append(goal_config)
 
         if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
             self.planning_env.InitializePlot(goal_config)
@@ -47,7 +47,8 @@ class AStarPlanner(object):
         successors = self.planning_env.GetSuccessors(start_id)
         for next_node in successors:
             print next_node
-            self.planning_env.PlotEdge(start_config, self.planning_env.discrete_env.NodeIdToConfiguration(next_node))
+            if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
+                self.planning_env.PlotEdge(start_config, self.planning_env.discrete_env.NodeIdToConfiguration(next_node))
             plan_cost[next_node] = plan_cost[start_id] + 1
             priority = plan_cost[next_node] + self.planning_env.ComputeHeuristicCost(next_node, goal_id)
             frontier.put((priority, next_node))
@@ -57,7 +58,8 @@ class AStarPlanner(object):
             # (cur_node, (cur_cost, _)) = frontier.popitem()
             (cur_cost, cur_node) = frontier.get()
             states_visited.append(cur_node)
-            self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(came_from[cur_node]), self.planning_env.discrete_env.NodeIdToConfiguration(cur_node))
+            if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
+                self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(came_from[cur_node]), self.planning_env.discrete_env.NodeIdToConfiguration(cur_node))
 
             if cur_node == goal_id:
                 goal_found = True
@@ -79,4 +81,5 @@ class AStarPlanner(object):
             plan = np.append([self.planning_env.discrete_env.NodeIdToConfiguration(cur_node)], plan, axis=0)
             cur_node = parent
 
+        print 'NUM OF EXPANDED NODES: ' + repr(len(states_visited))
         return plan
