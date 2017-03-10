@@ -90,11 +90,11 @@ class HerbEnvironment(object):
         #goal_config=self.discrete_env.NodeIdToConfigration(goal_config)
 
 
-        start_config=self.discrete_env.NodeIdToGridCoord(start_id)
-        goal_config=self.discrete_env.NodeIdToGridCoord(goal_id)
+        start_conf=self.discrete_env.NodeIdToGridCoord(start_id)
+        goal_conf=self.discrete_env.NodeIdToGridCoord(goal_id)
 
-        for i in range(len(start_id)):
-            cost=cost+abs(start_config(i)-goal_config(i))
+        for i in range(len(start_conf)):
+            cost=cost+abs(start_conf[i]-goal_conf[i])
 
         # TODO: Here you will implement a function that 
         # computes the heuristic cost between the configurations
