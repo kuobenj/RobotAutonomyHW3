@@ -51,7 +51,7 @@ class HerbEnvironment(object):
             newNode = self.discrete_env.GridCoordToNodeId(grid)
             print "node"
             print newNode
-            if (not self.IsCollision(newNode )  and self.IsBoundary(newNode)):
+            if (self.IsCollision(newNode )==False  and self.IsBoundary(newNode)==True):
                 successors.append(newNode )
 
             # Addition Neighbor
